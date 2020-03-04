@@ -11,12 +11,10 @@
         <input asp-for="@Model.Title" />
     </div>
     <div>
-        <label asp-for="@Model.Name"></label>
         <select asp-for="AuthorId"
                 asp-items="@(new SelectList(Model.Writers,"Id","Name"))">
             <option>Please select one</option>
         </select>
-        OR
         <label asp-for="@Model.Name"></label>
         <input asp-for="@Model.Name" />
 
