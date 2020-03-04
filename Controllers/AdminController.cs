@@ -28,7 +28,7 @@ namespace IndyBooks.Controllers
                 Writers = _db.Writers
             };
 
-            return View(bookVM);
+            return View("AddBook", bookVM);
         }
         [HttpPost]
         public IActionResult CreateBook(AddBookViewModel bookVM)
@@ -50,21 +50,35 @@ namespace IndyBooks.Controllers
                 _db.SaveChanges();
             }
 
-            //TODO: Build the Book using the parameter data and your newly created author.
-            Book bk = new Book
+
+            //Check if book is in system
+            Book book = _db.Books.Include(b => b.Author).SingleOrDefault(b => b.Id == bookVM.Id);
+
+            if (book == null)
             {
-                Id = bookVM.Id,
-                Title = bookVM.Title,
-                SKU = bookVM.SKU,
-                Price = bookVM.Price,
-                Author = author
-            };
+                Book newBook = new Book();
+                book = newBook;
+                book.Title = bookVM.Title;
+                book.SKU = bookVM.SKU;
+                book.Price = bookVM.Price;
+                book.Author = author;
+                _db.Add<Book>(book);
+                _db.SaveChanges();
 
-            _db.Add<Book>(bk);
+            }
+            else
+            {
+                book.Id = bookVM.Id;
+                book.Title = bookVM.Title;
+                book.SKU = bookVM.SKU;
+                book.Price = bookVM.Price;
+                book.Author = author;
+                _db.Add<Book>(book);
 
-            //TODO: Add author and book to their DbSets; SaveChanges
-            _db.Update<Book>(bk);
-            _db.SaveChanges();
+                //TODO: Add author and book to their DbSets; SaveChanges
+                _db.Update<Book>(book);
+                _db.SaveChanges();
+            }
 
             //Shows the book using the Index View 
             return RedirectToAction("Index", new { id = bookVM.Id });
